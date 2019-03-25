@@ -23,12 +23,12 @@ func newReader(read, written *cursor, b barrier, c Consumer) *reader {
 
 func (r *reader) Start() {
 	r.ready = true
-	go r.receive()
+	go r.startReceiving()
 }
 
 func (r *reader) Stop() { r.ready = false }
 
-func (r *reader) receive() {
+func (r *reader) startReceiving() {
 	previous := r.read.Load()
 	var lower, upper int64
 
