@@ -94,3 +94,7 @@ func main() {
 }
 
 ```
+
+## Projects using Turbine
+
+1. [CASM](https://github.com/lthibault/casm)
