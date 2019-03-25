@@ -29,7 +29,8 @@ func (t Turbine) Stop() {
 // Writer for the turbine
 func (t *Turbine) Writer() *Writer { return t.w }
 
-// New Turbine
+// New Turbine with specified capacity consumers.  Consumers will receive messages in
+// the order in which they are passed to New.
 func New(cap int64, cs ...Consumer) (t *Turbine) {
 	if cap > 0 && (cap&(cap-1)) != 0 {
 		panic("cap must be power of 2")

@@ -18,6 +18,14 @@ type packet struct {
 	Value int
 }
 
+type multiplier struct{}
+
+func (multiplier) Consume(lower, upper int64) {
+	for seq := lower; seq <= upper; seq++ {
+		ring[seq&mask].Value *= 100
+	}
+}
+
 type logger struct{}
 
 func (logger) Consume(lower, upper int64) {
@@ -29,7 +37,7 @@ func (logger) Consume(lower, upper int64) {
 }
 
 func main() {
-	t := turbine.New(cap, logger{})
+	t := turbine.New(cap, multiplier{}, logger{})
 	t.Start()
 	defer t.Stop()
 
