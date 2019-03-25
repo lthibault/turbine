@@ -42,6 +42,7 @@ func BenchmarkTurbine(b *testing.B) {
 			w.Commit(seq)
 		}
 
+		b.StopTimer()
 		t.Stop()
 	})
 
@@ -65,6 +66,7 @@ func BenchmarkTurbine(b *testing.B) {
 			ring[seq&mask].Value = 1
 		}
 
+		b.StopTimer()
 		t.Stop()
 	})
 }
@@ -85,6 +87,7 @@ func BenchmarkChan(b *testing.B) {
 			ch <- i
 		}
 
+		b.StopTimer()
 		close(ch)
 	})
 
@@ -103,6 +106,7 @@ func BenchmarkChan(b *testing.B) {
 			ch <- i
 		}
 
+		b.StopTimer()
 		close(ch)
 	})
 
@@ -121,6 +125,7 @@ func BenchmarkChan(b *testing.B) {
 			ch <- i
 		}
 
+		b.StopTimer()
 		close(ch)
 	})
 
