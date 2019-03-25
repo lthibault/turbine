@@ -23,34 +23,37 @@ func newReader(read, written *cursor, b barrier, c Consumer) *reader {
 
 func (r *reader) Start() {
 	r.ready = true
-	go r.startReceiving()
+	r.startReceiving()
 }
 
 func (r *reader) Stop() { r.ready = false }
 
 func (r *reader) startReceiving() {
-	previous := r.read.Load()
-	var lower, upper int64
+	go func() {
+		var lower, upper, prev int64
+		prev = r.read.Load()
 
-	for {
-		lower = previous + 1
-		upper = r.b.Load()
+		for {
+			lower = prev + 1
+			upper = r.b.Load()
 
-		if lower <= upper {
-			r.c.Consume(lower, upper)
-			r.read.Store(upper)
-			previous = upper
-		} else if upper = r.written.Load(); lower <= upper {
-			time.Sleep(time.Microsecond)
-		} else if r.ready {
-			time.Sleep(time.Millisecond)
-		} else {
-			break
+			if lower <= upper {
+				r.c.Consume(lower, upper)
+				r.read.Store(upper)
+				prev = upper
+			} else if upper = r.written.Load(); lower <= upper {
+				// N.B.:  sleeping increases the batch size by allowing the ring buffer
+				//		  to fill.  This in turn reduces the number of writes required
+				//		  to store the sequence. Reducing writes allows the CPU to
+				//		  optimize the pipeline by avoiding prediction failures.
+				time.Sleep(time.Microsecond)
+			} else if r.ready {
+				time.Sleep(time.Millisecond)
+			} else {
+				break
+			}
+
+			runtime.Gosched()
 		}
-
-		// sleeping increases the batch size which reduces number of writes required to
-		// store the sequence reducing the number of writes allows the CPU to optimize
-		// the pipeline without prediction failures
-		runtime.Gosched()
-	}
+	}()
 }
