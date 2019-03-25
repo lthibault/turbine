@@ -31,6 +31,10 @@ func (t *Turbine) Writer() *Writer { return t.w }
 
 // New Turbine
 func New(cap int64, cs ...Consumer) (t *Turbine) {
+	if cap > 0 && (cap&(cap-1)) != 0 {
+		panic("cap must be power of 2")
+	}
+
 	t = new(Turbine)
 	t.cap = cap
 	t.rs = make([]*reader, len(cs))
