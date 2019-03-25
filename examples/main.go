@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	turbine "github.com/lthibault/turbine/pkg"
@@ -22,7 +21,7 @@ type multiplier struct{}
 
 func (multiplier) Consume(lower, upper int64) {
 	for seq := lower; seq <= upper; seq++ {
-		ring[seq&mask].Value *= 100
+		ring[seq&mask].Value *= 10
 	}
 }
 
@@ -41,15 +40,13 @@ func main() {
 	t.Start()
 	defer t.Stop()
 
-	go func() {
-		w := t.Writer()
+	w := t.Writer()
 
-		for i := 0; i < 100; i++ {
-			seq := w.Reserve(1)
-			ring[seq&mask].Value = i
-			w.Commit(seq)
-		}
-	}()
-
-	<-context.Background().Done()
+	var i int
+	for {
+		seq := w.Reserve(1)
+		ring[seq&mask].Value = i
+		w.Commit(seq)
+		i++
+	}
 }
