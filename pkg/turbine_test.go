@@ -33,6 +33,9 @@ func BenchmarkTurbine(b *testing.B) {
 		w := t.Writer()
 		t.Start()
 
+		b.ReportAllocs()
+		b.ResetTimer()
+
 		for i := 0; i < b.N; i++ {
 			seq = w.Reserve(1)
 			ring[seq&mask].Value = i
@@ -47,6 +50,9 @@ func BenchmarkTurbine(b *testing.B) {
 		t := New(cap, global{})
 		w := t.Writer()
 		t.Start()
+
+		b.ReportAllocs()
+		b.ResetTimer()
 
 		for i := 0; i < b.N; i++ {
 			if i%batch == 0 {
@@ -72,6 +78,9 @@ func BenchmarkChan(b *testing.B) {
 			}
 		}()
 
+		b.ReportAllocs()
+		b.ResetTimer()
+
 		for i := 0; i < b.N; i++ {
 			ch <- i
 		}
@@ -87,6 +96,9 @@ func BenchmarkChan(b *testing.B) {
 			}
 		}()
 
+		b.ReportAllocs()
+		b.ResetTimer()
+
 		for i := 0; i < b.N; i++ {
 			ch <- i
 		}
@@ -101,6 +113,9 @@ func BenchmarkChan(b *testing.B) {
 				res = i
 			}
 		}()
+
+		b.ReportAllocs()
+		b.ResetTimer()
 
 		for i := 0; i < b.N; i++ {
 			ch <- i
