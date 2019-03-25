@@ -2,27 +2,14 @@ package turbine
 
 import (
 	"runtime"
-	"sync/atomic"
 	"time"
-	"unsafe"
 )
-
-type flag uint32
-
-func (f *flag) Bool() bool { return atomic.LoadUint32((*uint32)(unsafe.Pointer(f))) != 0 }
-
-func (f *flag) Set() {
-	atomic.CompareAndSwapUint32((*uint32)(unsafe.Pointer(f)), 0, 1)
-}
-func (f *flag) Unset() {
-	atomic.CompareAndSwapUint32((*uint32)(unsafe.Pointer(f)), 1, 0)
-}
 
 type reader struct {
 	read, written *cursor
 	b             barrier
 	c             Consumer
-	ready         flag
+	ready         bool
 }
 
 func newReader(read, written *cursor, b barrier, c Consumer) *reader {
@@ -35,11 +22,11 @@ func newReader(read, written *cursor, b barrier, c Consumer) *reader {
 }
 
 func (r *reader) Start() {
-	r.ready.Set()
+	r.ready = true
 	go r.receive()
 }
 
-func (r *reader) Stop() { r.ready.Unset() }
+func (r *reader) Stop() { r.ready = false }
 
 func (r *reader) receive() {
 	previous := r.read.Load()
@@ -55,7 +42,7 @@ func (r *reader) receive() {
 			previous = upper
 		} else if upper = r.written.Load(); lower <= upper {
 			time.Sleep(time.Microsecond)
-		} else if r.ready.Bool() {
+		} else if r.ready {
 			time.Sleep(time.Millisecond)
 		} else {
 			break
