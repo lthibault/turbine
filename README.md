@@ -76,7 +76,7 @@ type multiplier struct{}
 
 func (multiplier) Consume(lower, upper int64) {
     for seq := lower; seq <= upper; seq++ {
-        ring[seq&mask].Value *= 100
+        ring[seq&mask].Value *= 10
     }
 }
 
