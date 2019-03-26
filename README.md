@@ -56,7 +56,6 @@ The following demonstrates the use of `turbine`.  Note the absence of `interface
 package main
 
 import (
-    "context"
     "log"
 
     turbine "github.com/lthibault/turbine/pkg"
@@ -95,18 +94,13 @@ func main() {
     t := turbine.New(cap, multiplier{}, logger{})
     t.Start()
     defer t.Stop()
-
-    go func() {
         w := t.Writer()
 
-        for i := 0; i < 100; i++ {
-            seq := w.Reserve(1)
-            ring[seq&mask].Value = i
-            w.Commit(seq)
-        }
-    }()
-
-    <-context.Background().Done()
+    for i := 0; i < 100; i++ {
+        seq := w.Reserve(1)
+        ring[seq&mask].Value = i
+        w.Commit(seq)
+    }
 }
 
 ```
